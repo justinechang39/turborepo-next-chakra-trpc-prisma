@@ -1,7 +1,15 @@
 import Head from 'next/head';
 import { Flex } from '@chakra-ui/react';
+import { trpc } from './utils/trpc';
+import { useEffect } from 'react';
 
 export default function Home() {
+  const { data, isLoading } = trpc.testEndpoint.useQuery();
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
   return (
     <>
       <Head>

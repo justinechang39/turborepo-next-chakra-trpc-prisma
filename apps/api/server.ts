@@ -4,7 +4,6 @@ import express from 'express'; // created for each request
 import cors from 'cors';
 import { z } from 'zod';
 
-
 const createContext = ({ req, res }: trpcExpress.CreateExpressContextOptions) => ({
   lol: 'haha'
 }); // no context
@@ -14,7 +13,7 @@ console.log('server starting');
 
 export const appRouter = t.router({
   testEndpoint: t.procedure.query(() => {
-    return 'hahahahahahahaah';
+    return 'LOLLLL ok';
   }),
   createUser: t.procedure.input(z.object({ name: z.string().min(5) })).mutation(async (req) => {
     console.log(req.input);
