@@ -1,49 +1,32 @@
-import { inferAsyncReturnType, initTRPC } from '@trpc/server';
-import * as trpcExpress from '@trpc/server/adapters/express';
-import express from 'express'; // created for each request
-import cors from 'cors';
-import { z } from 'zod';
+import cors from '@fastify/cors';
+import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
+import fastify from 'fastify';
+import { createContext } from './context';
+import { AppRouter, appRouter } from './router';
+require('dotenv').config();
 
-const createContext = ({ req, res }: trpcExpress.CreateExpressContextOptions) => ({
-  lol: 'haha'
-}); // no context
-type Context = inferAsyncReturnType<typeof createContext>;
-export const t = initTRPC.context<Context>().create();
-console.log('server starting');
-
-export const appRouter = t.router({
-  testEndpoint: t.procedure.query(() => {
-    return 'LOLLLL ok';
-  }),
-  createUser: t.procedure.input(z.object({ name: z.string().min(5) })).mutation(async (req) => {
-    console.log(req.input);
-
-    return 'done!';
-  }),
-  getUserHaha: t.procedure.input(z.object({ getreq: z.string().optional() })).query((req) => {
-    console.log(req.input);
-
-    return 'haha';
-  })
+const server = fastify({
+  maxParamLength: 5000
 });
-// export type definition of API
-export type AppRouter = typeof appRouter;
 
-const app = express();
+server.register(cors, {
+  // add your own production endpoints here endpoints here
+  origin:
+    process.env.ENV === 'development' ? ['http://localhost:3000', 'http://localhost:3001'] : []
+});
 
-const corsOptions: cors.CorsOptions = {
-  origin: 'http://localhost:3000',
-  optionsSuccessStatus: 200
-};
+server.register(fastifyTRPCPlugin, {
+  prefix: '/trpc',
+  trpcOptions: { router: appRouter, createContext }
+});
 
-app.use(cors(corsOptions));
+(async () => {
+  try {
+    await server.listen({ port: 3002 });
+  } catch (err) {
+    server.log.error(err);
+    process.exit(1);
+  }
+})();
 
-app.use(
-  '/trpc',
-  trpcExpress.createExpressMiddleware({
-    router: appRouter,
-    createContext
-  })
-);
-
-app.listen(4001);
+export type { AppRouter };

@@ -4,7 +4,7 @@ import { trpc } from './utils/trpc';
 import { useEffect, useMemo } from 'react';
 
 export default function Home() {
-  const { data, isLoading } = trpc.testEndpoint.useQuery();
+  const { data, isLoading } = trpc.getUserById.useQuery('hello');
 
   useEffect(() => {
     console.log(data);
