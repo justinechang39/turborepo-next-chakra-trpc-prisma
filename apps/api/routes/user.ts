@@ -1,6 +1,6 @@
-import { publicProcedure, router } from '../trpc';
+import { adminProcedure, router } from '../trpc';
 export const userRouter = router({
-  userList: publicProcedure.query(() => {
+  userList: adminProcedure.query(() => {
     // [..]
     return ['Lol', 'user level router'];
   })
